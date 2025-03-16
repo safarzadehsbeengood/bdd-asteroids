@@ -4,6 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
+from particle import Particle
 import sys
 
 def main():
@@ -17,11 +18,13 @@ def main():
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    particles = pygame.sprite.Group()
 
     Player.containers = (updatable, drawable)
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2) # instantiate player
 
     Asteroid.containers = (asteroids, updatable, drawable)
+    Particle.containers = (particles, updatable, drawable)
 
     AsteroidField.containers = (updatable)
     asteroid_field = AsteroidField()
