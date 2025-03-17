@@ -47,6 +47,8 @@ def main():
     score, score_rect = render_text(f"score: {player.score}", 60, 20)
     lives, lives_rect = render_text(f"lives: {player.lives}", 60, 50)
 
+    running = True
+
     while True:
         # get events and quit if needed
         for event in pygame.event.get():
@@ -64,13 +66,15 @@ def main():
                 lives, lives_rect = render_text(f"lives: {player.lives}", 60, 50)
                 if player.lives <= 0:
                     print("Game Over!")
-                    sys.exit(0)
+                    running = False
             for shot in shots:
                 if asteroid.check_collision(shot):
                     shot.kill()
                     player.add_score(asteroid.kind)
                     score, score_rect = render_text(f"score: {player.score}", 60, 20)
                     asteroid.split()
+
+        if not running: break
 
         if player.dying_cooldown > 0:
             player.dying_cooldown -= 1
@@ -88,8 +92,23 @@ def main():
         pygame.display.flip() # refresh the screen
 
         dt = clock.tick(FPS) / 1000 # get amount of time since last tick
+    
+    game_over_timer = FPS * 3 # 3 seconds of game over screen
 
-    game_over, game_over_rect = render_text("Game Over", "", 0)
+    game_over, game_over_rect = render_text("Game Over!", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+    while game_over_timer > 0:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+        screen.fill("black")
+        screen.blit(game_over, game_over_rect)
+        pygame.display.flip()
+        game_over_timer -= 1
+        dt = clock.tick(FPS) / 1000
+
+    pygame.quit()
+    sys.exit()
 
 
 if __name__ == "__main__":
