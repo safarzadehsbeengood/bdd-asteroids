@@ -12,6 +12,7 @@ class Player(CircleShape):
         self.shooting_timer = 0
         self.score = 0
         self.lives = 3
+        self.dying_cooldown = 0
 
     # in the player class
     def triangle(self):
@@ -26,9 +27,13 @@ class Player(CircleShape):
         self.rotation += PLAYER_TURN_SPEED * dt
 
     def draw(self, screen):
+        if self.dying_cooldown > FPS * 3:
+            return
         pygame.draw.polygon(screen, "white", self.triangle(), 2)
         
     def thruster(self):
+        if self.dying_cooldown > FPS * 3:
+            return
         particles = []
         backward = pygame.Vector2(0, -1).rotate(self.rotation + 180)
         right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
@@ -45,10 +50,14 @@ class Player(CircleShape):
         return particles
 
     def move(self, dt):
+        if self.dying_cooldown > FPS * 3:
+            return
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.acceleration += forward * PLAYER_ACCELERATION * dt
 
     def shoot(self):
+        if self.dying_cooldown > FPS * 3:
+            return
         shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
         shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
     
@@ -109,7 +118,15 @@ class Player(CircleShape):
     # def check_collision(self, other):
         # pass
 
-    # TODO: create crashing animation; render 3 random lines with small, random velocities
     def die(self):
         self.lives -= 1
+        # create three lines in random directions
+        self.dying_cooldown = FPS * DYING_COOLDOWN # DYING_COOLDOWN seconds before checking player collisions
+        particles = []
+        for _ in range(100):
+            angle = random.uniform(0, 360)
+            speed = random.uniform(100, 200)
+            velocity = pygame.Vector2(0, 1).rotate(angle) * speed
+            particle = Particle(self.position.x, self.position.y, velocity, WHITE, random.uniform(0.1, 0.25))
+            particles.append(particle)
          

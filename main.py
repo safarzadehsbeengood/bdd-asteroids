@@ -38,16 +38,14 @@ def main():
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # create the screen
 
-    def render_text(text, value, offset):
-        score = font.render(f"{str(text)}: " + str(value), False, WHITE)
-        score_rect = score.get_rect()
-        score_rect.center = (SCREEN_WIDTH // 2 + offset, 20)
-        return score, score_rect
+    def render_text(text, x, y):
+        text_render = font.render(text, False, WHITE)
+        text_rect = text_render.get_rect()
+        text_rect.center = (x, y)
+        return text_render, text_rect 
 
-    score, score_rect = render_text("score", player.score, -100)
-    lives, lives_rect = render_text("lives", player.lives, 100)
-    
-    dying_cooldown = 0
+    score, score_rect = render_text(f"score: {player.score}", 60, 20)
+    lives, lives_rect = render_text(f"lives: {player.lives}", 60, 50)
 
     while True:
         # get events and quit if needed
@@ -61,22 +59,21 @@ def main():
 
         # check collisions
         for asteroid in asteroids:
-            if dying_cooldown <= 0 and player.check_collision(asteroid):
+            if player.dying_cooldown <= 0 and player.check_collision(asteroid):
                 player.die()
-                lives, lives_rect = render_text("lives", player.lives, 100)
+                lives, lives_rect = render_text(f"lives: {player.lives}", 60, 50)
                 if player.lives <= 0:
                     print("Game Over!")
                     sys.exit(0)
-                dying_cooldown = FPS * DYING_COOLDOWN # DYING_COOLDOWN seconds before checking player collisions
             for shot in shots:
                 if asteroid.check_collision(shot):
                     shot.kill()
                     player.add_score(asteroid.kind)
-                    score, score_rect = render_text("score", player.score, -100)
+                    score, score_rect = render_text(f"score: {player.score}", 60, 20)
                     asteroid.split()
 
-        if dying_cooldown > 0:
-            dying_cooldown -= 1
+        if player.dying_cooldown > 0:
+            player.dying_cooldown -= 1
 
         for obj in drawable:
             obj.draw(screen)
@@ -91,6 +88,8 @@ def main():
         pygame.display.flip() # refresh the screen
 
         dt = clock.tick(FPS) / 1000 # get amount of time since last tick
+
+    game_over, game_over_rect = render_text("Game Over", "", 0)
 
 
 if __name__ == "__main__":
