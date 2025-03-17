@@ -10,6 +10,10 @@ import sys
 def main():
 
     pygame.init()
+
+    bg = pygame.image.load("./img/space.jpg")
+    bg = pygame.transform.scale(bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    bg.set_alpha(128)
     clock = pygame.time.Clock()
 
     dt = 0
@@ -55,7 +59,8 @@ def main():
             if event.type == pygame.QUIT:
                 return
 
-        screen.fill("black") # fill with black
+        screen.fill("black")
+        screen.blit(bg, (0, 0))
 
         updatable.update(dt)
 
