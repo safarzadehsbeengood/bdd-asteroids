@@ -1,8 +1,8 @@
-- [ ] Add a scoring system
+- [X] Add a scoring system
 - [ ] Implement multiple lives and respawning
 - [X] Add an explosion effect for the asteroids
 - [ ] Add acceleration to the player movement
-- [ ] Make the objects wrap around the screen instead of disappearing
+- [X] Make the objects wrap around the screen instead of disappearing
 - [ ] Add a background image
 - [ ] Create different weapon types
 - [X] Make the asteroids lumpy instead of perfectly round
