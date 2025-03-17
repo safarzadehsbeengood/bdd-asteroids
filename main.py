@@ -38,13 +38,16 @@ def main():
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # create the screen
 
-    def render_score(player_score):
-        score = font.render("score: " + str(player_score), False, WHITE)
+    def render_text(text, value, offset):
+        score = font.render(f"{str(text)}: " + str(value), False, WHITE)
         score_rect = score.get_rect()
-        score_rect.center = (SCREEN_WIDTH // 2, 20)
+        score_rect.center = (SCREEN_WIDTH // 2 + offset, 20)
         return score, score_rect
 
-    score, score_rect = render_score(player.score)
+    score, score_rect = render_text("score", player.score, -100)
+    lives, lives_rect = render_text("lives", player.lives, 100)
+    
+    dying_cooldown = 0
 
     while True:
         # get events and quit if needed
@@ -58,17 +61,22 @@ def main():
 
         # check collisions
         for asteroid in asteroids:
-            if player.check_collision(asteroid):
-                # TODO: implement multiple lives
-                print("Game Over!")
-                sys.exit(0)
+            if dying_cooldown <= 0 and player.check_collision(asteroid):
+                player.die()
+                lives, lives_rect = render_text("lives", player.lives, 100)
+                if player.lives <= 0:
+                    print("Game Over!")
+                    sys.exit(0)
+                dying_cooldown = FPS * DYING_COOLDOWN # DYING_COOLDOWN seconds before checking player collisions
             for shot in shots:
                 if asteroid.check_collision(shot):
                     shot.kill()
                     player.add_score(asteroid.kind)
-                    score, score_rect = render_score(player.score)
+                    score, score_rect = render_text("score", player.score, -100)
                     asteroid.split()
-        
+
+        if dying_cooldown > 0:
+            dying_cooldown -= 1
 
         for obj in drawable:
             obj.draw(screen)
@@ -78,6 +86,7 @@ def main():
                 particle.kill()
 
         screen.blit(score, score_rect)
+        screen.blit(lives, lives_rect)
 
         pygame.display.flip() # refresh the screen
 

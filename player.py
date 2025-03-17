@@ -11,6 +11,7 @@ class Player(CircleShape):
         self.rotation = 0
         self.shooting_timer = 0
         self.score = 0
+        self.lives = 3
 
     # in the player class
     def triangle(self):
@@ -30,14 +31,16 @@ class Player(CircleShape):
     def thruster(self):
         particles = []
         backward = pygame.Vector2(0, -1).rotate(self.rotation + 180)
-        particle_position = self.position - backward * self.radius
+        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
+        right.scale_to_length(random.uniform(0, right.length()))
+        particle_position = self.position - backward * self.radius + (random.choice([-1, 1]) * right)
         # create a couple particles in random directions
         for _ in range(10):
             spread = 60
             angle = self.rotation + 180 + random.uniform(-spread, spread)
-            speed = random.uniform(200, 300)
+            speed = random.uniform(100, 200)
             velocity = pygame.Vector2(0, 1).rotate(angle) * speed
-            particle = Particle(particle_position.x, particle_position.y, velocity, (random.randint(20, 255), 0, 0), random.uniform(0.25, 0.5))
+            particle = Particle(particle_position.x, particle_position.y, velocity, WHITE, random.uniform(0.1, 0.25))
             particles.append(particle)
         return particles
 
@@ -105,5 +108,8 @@ class Player(CircleShape):
     # TODO: implement this with triangular hitbox
     # def check_collision(self, other):
         # pass
-        
-        
+
+    # TODO: create crashing animation; render 3 random lines with small, random velocities
+    def die(self):
+        self.lives -= 1
+         
