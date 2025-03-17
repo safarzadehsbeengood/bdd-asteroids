@@ -39,7 +39,7 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # create the screen
 
     def render_text(text, x, y):
-        text_render = font.render(text, False, WHITE)
+        text_render = font.render(text, True, WHITE)
         text_rect = text_render.get_rect()
         text_rect.center = (x, y)
         return text_render, text_rect 
@@ -88,6 +88,8 @@ def main():
 
         screen.blit(score, score_rect)
         screen.blit(lives, lives_rect)
+        mode, mode_rect = render_text(f"weapon: {"triple shot" if player.shot_mode else "single shot"}", SCREEN_WIDTH // 2, 20)
+        screen.blit(mode, mode_rect)
 
         pygame.display.flip() # refresh the screen
 

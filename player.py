@@ -13,6 +13,8 @@ class Player(CircleShape):
         self.score = 0
         self.lives = 3
         self.dying_cooldown = 0
+        self.shot_mode = SINGLE_SHOT_MODE
+        self.mode_switch_timer = 0
 
     # in the player class
     def triangle(self):
@@ -58,8 +60,14 @@ class Player(CircleShape):
     def shoot(self):
         if self.dying_cooldown > FPS * 3:
             return
-        shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
-        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+        if self.shot_mode == SINGLE_SHOT_MODE:
+            shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
+            shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+        elif self.shot_mode == TRIPLE_SHOT_MODE:
+            triple_shot_angles = [-20, 0, 20]
+            shots = [Shot(self.position.x, self.position.y, SHOT_RADIUS) for _ in range(3)]
+            for i, shot in enumerate(shots):
+                shot.velocity = pygame.Vector2(0,1).rotate(self.rotation + triple_shot_angles[i]) * PLAYER_SHOOT_SPEED
     
     def add_score(self, asteroid_type):
         # 0 -> small
@@ -94,6 +102,13 @@ class Player(CircleShape):
             if self.shooting_timer <= 0:
                 self.shoot()
                 self.shooting_timer = PLAYER_SHOOT_COOLDOWN
+
+        if keys[pygame.K_e] and self.mode_switch_timer <= 0:
+            self.shot_mode = not self.shot_mode
+            self.mode_switch_timer = FPS
+        
+        if self.mode_switch_timer > 0:
+            self.mode_switch_timer -= 1
 
         # physics updates
         self.velocity += self.acceleration
