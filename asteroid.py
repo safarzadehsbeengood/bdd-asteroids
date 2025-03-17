@@ -91,7 +91,7 @@ class Asteroid(CircleShape):
             angle = random.uniform(0, 360)
             speed = random.uniform(50, 150)
             velocity = pygame.Vector2(1, 0).rotate(angle) * speed
-            particle = Particle(self.position.x, self.position.y, velocity, random.uniform(0.5, 1.0))
+            particle = Particle(self.position.x, self.position.y, velocity, WHITE, random.uniform(0.5, 1.0))
             particles.append(particle)
         return particles
 

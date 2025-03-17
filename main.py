@@ -68,9 +68,14 @@ def main():
                     player.add_score(asteroid.kind)
                     score, score_rect = render_score(player.score)
                     asteroid.split()
+        
 
         for obj in drawable:
             obj.draw(screen)
+
+        for particle in particles:
+            if particle.alpha <= 0:
+                particle.kill()
 
         screen.blit(score, score_rect)
 

@@ -1,10 +1,11 @@
 import pygame
 
 class Particle(pygame.sprite.Sprite):
-    def __init__(self, x, y, velocity, lifetime=1.0):
+    def __init__(self, x, y, velocity, color, lifetime=1.0):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.position = pygame.Vector2(x, y)
         self.velocity = velocity
+        self.color = color
         self.lifetime = lifetime
         self.alpha = 255
         self.fade_rate = 255 / lifetime
@@ -16,7 +17,8 @@ class Particle(pygame.sprite.Sprite):
 
     def draw(self, screen):
         if self.alpha > 0:
-            color = (255, 255, 255, int(self.alpha))
+            r, g, b = self.color
+            color = (r, g, b, int(self.alpha))
             surf = pygame.Surface((3, 3), pygame.SRCALPHA)
             pygame.draw.circle(surf, color, (1, 1), 1)
             screen.blit(surf, self.position)

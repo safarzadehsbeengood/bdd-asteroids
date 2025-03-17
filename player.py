@@ -1,7 +1,9 @@
 from circleshape import CircleShape
 from shot import Shot
 from constants import *
+from particle import Particle
 import pygame
+import random
 
 class Player(CircleShape):
     def __init__(self, x, y):
@@ -24,10 +26,24 @@ class Player(CircleShape):
 
     def draw(self, screen):
         pygame.draw.polygon(screen, "white", self.triangle(), 2)
+        
+    def thruster(self):
+        particles = []
+        backward = pygame.Vector2(0, -1).rotate(self.rotation + 180)
+        particle_position = self.position - backward * self.radius
+        # create a couple particles in random directions
+        for _ in range(10):
+            spread = 60
+            angle = self.rotation + 180 + random.uniform(-spread, spread)
+            speed = random.uniform(200, 300)
+            velocity = pygame.Vector2(0, 1).rotate(angle) * speed
+            particle = Particle(particle_position.x, particle_position.y, velocity, (random.randint(20, 255), 0, 0), random.uniform(0.25, 0.5))
+            particles.append(particle)
+        return particles
 
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
-        self.position += forward * PLAYER_SPEED * dt
+        self.acceleration += forward * PLAYER_ACCELERATION * dt
 
     def shoot(self):
         shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
@@ -48,6 +64,10 @@ class Player(CircleShape):
     def update(self, dt):
         keys = pygame.key.get_pressed()
 
+        self.rotation %= 360
+        self.acceleration = pygame.Vector2(0, 0)
+
+        # key checks
         if keys[pygame.K_a]:
             self.rotate(-dt)
         
@@ -56,16 +76,31 @@ class Player(CircleShape):
             
         if keys[pygame.K_w]:
             self.move(dt)
+            self.thruster()
 
-        if keys[pygame.K_s]:
-            self.move(dt)
-        
         if keys[pygame.K_SPACE]:
             if self.shooting_timer <= 0:
                 self.shoot()
                 self.shooting_timer = PLAYER_SHOOT_COOLDOWN
 
+        # physics updates
+        self.velocity += self.acceleration
+        self.position += self.velocity
+        if self.velocity.length() > 0: self.velocity.clamp_magnitude_ip(MAX_PLAYER_VELOCITY)
+        self.velocity *= PLAYER_DAMPING
+
         self.shooting_timer -= dt
+
+        # wrap around
+        if self.position.x < -self.radius:
+            self.position.x = SCREEN_WIDTH + self.radius
+        elif self.position.x > SCREEN_WIDTH + self.radius:
+            self.position.x = -self.radius
+            
+        if self.position.y < -self.radius:
+            self.position.y = SCREEN_HEIGHT + self.radius
+        elif self.position.y > SCREEN_HEIGHT + self.radius:
+            self.position.y = -self.radius
 
     # TODO: implement this with triangular hitbox
     # def check_collision(self, other):
