@@ -6,12 +6,13 @@ import random
 import math
 
 class Asteroid(CircleShape):
-    def __init__(self, x, y, radius):
+    def __init__(self, x, y, radius, kind):
         super().__init__(x, y, radius)
         self.rotation = 0
         self.rotation_speed = random.uniform(-0.1, 0.1)
         self.velocity_x = random.uniform(-1, 1)
         self.velocity_y = random.uniform(-1, 1)
+        self.kind = kind
         
         self.vertices = []
         num_vertices = random.randint(7, 12)  # Between 7-12 points makes good asteroids
@@ -48,6 +49,17 @@ class Asteroid(CircleShape):
         
         # Update rotation
         self.rotation += self.rotation_speed
+
+        # wrap around
+        if self.position.x < -self.radius:
+            self.position.x = SCREEN_WIDTH + self.radius
+        elif self.position.x > SCREEN_WIDTH + self.radius:
+            self.position.x = -self.radius
+            
+        if self.position.y < -self.radius:
+            self.position.y = SCREEN_HEIGHT + self.radius
+        elif self.position.y > SCREEN_HEIGHT + self.radius:
+            self.position.y = -self.radius
         
     def draw(self, surface):
         rotated_vertices = []
@@ -94,7 +106,7 @@ class Asteroid(CircleShape):
         v1, v2 = self.velocity.rotate(new_angle), self.velocity.rotate(-new_angle)
         new_radius = self.radius - ASTEROID_MIN_RADIUS
 
-        a1, a2 = Asteroid(self.position.x, self.position.y, new_radius), Asteroid(self.position.x, self.position.y, new_radius)
+        a1, a2 = Asteroid(self.position.x, self.position.y, new_radius, self.kind-1), Asteroid(self.position.x, self.position.y, new_radius, self.kind-1)
         a1.velocity = v1 * 1.2
         a2.velocity = v2 * 1.2
 

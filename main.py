@@ -24,18 +24,27 @@ def main():
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2) # instantiate player
 
     Asteroid.containers = (asteroids, updatable, drawable)
-    Particle.containers = (particles, updatable, drawable)
 
     AsteroidField.containers = (updatable)
     asteroid_field = AsteroidField()
 
     Shot.containers = (shots, updatable, drawable)
+    Particle.containers = (particles, updatable, drawable)
 
     print("Starting Asteroids!")
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
+    font = pygame.font.SysFont(None, 32)
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # create the screen
+
+    def render_score(player_score):
+        score = font.render("score: " + str(player_score), False, WHITE)
+        score_rect = score.get_rect()
+        score_rect.center = (SCREEN_WIDTH // 2, 20)
+        return score, score_rect
+
+    score, score_rect = render_score(player.score)
 
     while True:
         # get events and quit if needed
@@ -50,15 +59,20 @@ def main():
         # check collisions
         for asteroid in asteroids:
             if player.check_collision(asteroid):
+                # TODO: implement multiple lives
                 print("Game Over!")
                 sys.exit(0)
             for shot in shots:
                 if asteroid.check_collision(shot):
                     shot.kill()
+                    player.add_score(asteroid.kind)
+                    score, score_rect = render_score(player.score)
                     asteroid.split()
 
         for obj in drawable:
             obj.draw(screen)
+
+        screen.blit(score, score_rect)
 
         pygame.display.flip() # refresh the screen
 
